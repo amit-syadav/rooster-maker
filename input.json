@@ -1,0 +1,55 @@
+{
+  "forced_exclusions": {
+    "sp yadav": [
+      "Monday"
+    ],
+    "up tyagi": [
+      "Tuesday",
+      "Wednesday"
+    ],
+    "rajendra prasad": [
+      "Friday"
+    ],
+    "amit kumar": [
+      "Sunday"
+    ],
+    "pramod kumar": [
+      "Monday",
+      "Tuesday",
+      "Wednesday"
+    ],
+    "meghnath": [
+      "Monday",
+      "Tuesday",
+      "Wednesday"
+    ],
+    "dayanand": [
+      "Monday",
+      "Tuesday"
+    ],
+    "jagnandan": [
+      "Thursday",
+      "Friday"
+    ]
+  },
+  "forced_inclusions": {
+    "Friday": [
+      {
+        "sp sharma": "inter"
+      },
+      {
+        "yogesh kulkarni": "night"
+      }
+    ],
+    "Saturday": [
+      {
+        "sp sharma": "night"
+      }
+    ],
+    "Sunday": [
+      {
+        "yogesh kulkarni": "night"
+      }
+    ]
+  }
+}
