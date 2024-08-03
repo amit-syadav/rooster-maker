@@ -1,36 +1,22 @@
 import pandas as pd
-from validation import validation
-import json
-
-days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-
-employees = ['sp yadav', 'sp sharma', 'ashok meena', 'up tyagi', 'rajendra prasad', 'pramod kumar', 'amit kumar',
-             'meghnath', 'dayanand', 'yogesh kulkarni', 'gm kulkarni', 'jagnandan', 'rs meena']
-
-duty = ['day', 'inter', 'night']
-
-
-
-def get_exclusions():
-    data = { }
-    with open('input.json', 'r') as json_file:
-        data = json.load(json_file)
-
-    # Access the variables
-    forced_exclusions = data["forced_exclusions"]
-    forced_inclusions = data["forced_inclusions"]
-    return tuple([forced_exclusions,forced_inclusions])
+from viz.validation import validation
+from  datetime import datetime
 
 
 
 
-def get_rooster():
-    forced_exclusions,forced_inclusions = get_exclusions()
-    invalid_day, invalid_name, invalid_duty = validation(forced_inclusions, forced_exclusions, employees, days, duty)
+def get_rooster(app_variables):
+    forced_exclusions = app_variables.get_forced_exclusions()
+    forced_inclusions = app_variables.get_forced_inclusions()
+    days = app_variables.get_days()
+    employees = app_variables.get_employees()
+    duty = app_variables.get_duty()
 
-    if invalid_day or invalid_name or invalid_duty:
-        print(invalid_day, invalid_name, invalid_duty)
-        raise Exception(invalid_day, invalid_name, invalid_duty)
+
+    if validation(app_variables) != "":
+        raise ValueError(validation(app_variables))
+
+
 
 
     # dataframe is of form day: employees,  we show its transformed form on ui
@@ -41,7 +27,7 @@ def get_rooster():
     duty_i = 0
 
     r = 0
-    c = 0
+    c = datetime.now().second
 
     # iterate all days
     while r < df.shape[0]:
@@ -63,11 +49,12 @@ def get_rooster():
         # check if exclusion exists for the emp
         if df.columns[c % df.shape[1]] in forced_exclusions and df.index[r] in forced_exclusions[
             df.columns[c % df.shape[1]]]:
-            # print('exclusion found')
+            # print('Exclusion found!! Employee does not want duty on this day')
             pass
 
         elif duty[duty_i] in inclusion_duty:
             duty_i += 1
+            c -= 1 #do not increment counter in this case
 
         elif df.columns[c % df.shape[1]] in inclusion_emp:
             pass

@@ -1,7 +1,14 @@
-def validation(forced_inclusions, forced_exclusions, employees, days, duty):
+def validation(app_variables):
+    forced_exclusions = app_variables.get_forced_exclusions()
+    forced_inclusions = app_variables.get_forced_inclusions()
+    days = app_variables.get_days()
+    employees = app_variables.get_employees()
+    duty = app_variables.get_duty()
+
     invalid_day = []
     invalid_name = []
     invalid_duty = []
+    error_str = ""
 
 
 
@@ -27,6 +34,10 @@ def validation(forced_inclusions, forced_exclusions, employees, days, duty):
                 if day not in days:
                     invalid_day.append(day)
 
-    return tuple([invalid_day,
-                 invalid_name,
-                 invalid_duty])
+    if invalid_day:
+        error_str += "Found invalid day {}".format(invalid_day)
+    if invalid_name:
+        error_str += "Found invalid name {}".format(invalid_name)
+    if invalid_duty:
+        error_str += "Found invalid duty {}".format(invalid_duty)
+    return error_str

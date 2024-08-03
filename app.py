@@ -1,9 +1,12 @@
-# flask --app app run --debug
+
 from datetime import datetime
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect,jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 import get_rooster as rooster
+
+from viz.variable import Variable
+from viz.validation import validation
 
 app = Flask(__name__)
 
@@ -11,6 +14,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///Rooster.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+
+app_variables = Variable()
 
 class Employee(db.Model):
     name = db.Column(db.String(200), primary_key=True)
@@ -39,17 +44,45 @@ def add_employees(employees):
 
 @app.route('/')
 def get_rooster():
-    final_table=rooster.get_rooster()
+    final_table=rooster.get_rooster(app_variables)
     return render_template('rooster.html', final_table=final_table)
 
+@app.route('/get_forced_exclusions', methods=['GET'])
+def get_forced_exclusions():
+    return jsonify(app_variables.get_forced_exclusions())
+
+@app.route('/set_forced_exclusions', methods=['POST'])
+def set_forced_exclusions():
+    new_data = request.json
+    app_variables.set_forced_exclusions(new_data)
+    if validation(app_variables) != "":
+        return jsonify({"status": validation(app_variables) })
+
+    return jsonify({"status": "success"})
+
+
+@app.route('/get_forced_inclusions', methods=['GET'])
+def get_forced_inclusions():
+    return jsonify(app_variables.get_forced_inclusions())
+
+@app.route('/set_forced_inclusions', methods=['POST'])
+def set_forced_inclusions():
+    new_data = request.json
+    app_variables.set_forced_inclusions(new_data)
+    if validation(app_variables) != "":
+        return jsonify({"status": validation(app_variables) })
+
+    return jsonify({"status": "success"})
+
+
 @app.route('/edit-employees', methods=['GET', 'POST'])
-def hello_world():
+def edit_employees():
     if request.method=='POST':
         name = request.form['name'] 
         emp = Employee(name=name)
         db.session.add(emp)
         db.session.commit()
-        
+
     allTodo = Employee.query.all() 
     return render_template('index.html', allTodo=allTodo)
 
@@ -57,7 +90,8 @@ def hello_world():
 
 @app.route('/inclusion-exclusion', methods=['GET', 'POST'])
 def inclusion_exclusion():
-    forced_exclusions,forced_inclusions = rooster.get_exclusions()
+    forced_exclusions = app_variables.get_forced_exclusions()
+    forced_inclusions = app_variables.get_forced_inclusions()
     return render_template('inclusion-exclusion.html', forced_exclusions=forced_exclusions, forced_inclusions=forced_inclusions)
 
 
